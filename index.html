@@ -4,7 +4,33 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PPS Constellation — Two-Year Course Web</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script>
+// Load D3 with fallbacks — if one CDN is blocked (common on school/work networks),
+// try the next one automatically instead of leaving the page blank.
+(function loadD3(sources, i){
+  if (i >= sources.length) {
+    document.addEventListener("DOMContentLoaded", function(){
+      var app = document.getElementById("app");
+      if (app) app.insertAdjacentHTML("beforeend",
+        '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;' +
+        'color:#eef0fb;font-family:sans-serif;text-align:center;padding:40px;">' +
+        '<div><h2 style="font-family:serif;">Could not load the graph library</h2>' +
+        '<p>This network appears to block script CDNs. Try opening this file directly ' +
+        '(double-click it) instead of via a restricted network/browser, or use a different network.</p></div></div>');
+    });
+    return;
+  }
+  var s = document.createElement("script");
+  s.src = sources[i];
+  s.onload = function(){ window.__d3ready && window.__d3ready(); };
+  s.onerror = function(){ loadD3(sources, i+1); };
+  document.head.appendChild(s);
+})([
+  "https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js",
+  "https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js",
+  "https://d3js.org/d3.v7.min.js"
+], 0);
+</script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
 
@@ -265,6 +291,7 @@ svg:active{cursor:grabbing;}
 </div>
 
 <script>
+window.__d3ready = function(){
 /* =====================================================================
    DATA — every lesson from the 2-year PPS plan
    fields: sem, week, topic, activity, c(concepts), s(skills), x(contexts), lo, a(assessment)
@@ -730,6 +757,11 @@ window.addEventListener("resize", ()=>{
   width = window.innerWidth; height = window.innerHeight;
   svg.attr("viewBox", [0,0,width,height]);
 });
+
+}; // end window.__d3ready
+
+// In case d3 finished loading before this point (fast connections), run now too.
+if (window.d3) { window.__d3ready(); }
 </script>
 </body>
 </html>
